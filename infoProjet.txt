@@ -1,0 +1,14 @@
+PAM120 = veut dire que qlq part dans le temps les séquences ont muté 120 fois
+BLOSUM62 = veut dire que les 2 séquences ont 62% de leur composition en commun
+
+!!!! CECI DOIT ETRE DANS LE RAPPORT !!!!
+
+gap = représenté par un tiret
+
+hint n°1 ERREUR DANS LES SLIDES, "tout ce qui est en haut et à gauche est influencé", recalculer ce qui est en bas et à droite du coup ...
+
+Avoir des exemples simples dans le rapport (utiliser les 2 exemples des slides)
+
+Utiliser matplotlib
+
+possible que LALIGN et nos réponses ne soient pas équivalentes 
