@@ -24,20 +24,44 @@ class Matrice:
     """
     ADT qui représente une matrice
     """
-    def __init__(self):
+
+    def __init__(self,blosver):
         self.letters = {}
-        self.matrix = []
+        self.mat = self.parse(blosver)
 
-    #def initBlosPam(self,param):
-    #    self.matrix=parser(param)
-
-    def getItem(self,index):
+    def __getitem__(self,index):
         x,y = self.letters[index[0]],self.letters[index[1]]
         try:
-            res = self.matrix[x][y]
+            res = self.mat[x][y]
         except:
-            res = self.matrix[y][x]
+            res = self.mat[y][x]
         return res
+
+    def parse(self,version):
+        mat = []
+        print(version)
+        file = open(str(version), "r")
+        if version[0] == "b":
+            for i in range(6):
+                line = file.readline()
+        else:
+            for i in range(9):
+                line = file.readline()
+
+        letters =file.readline().split()
+        letters.pop()
+        for i in range(len(letters)):
+        	self.letters[letters[i]] = i
+
+        while len(line.split()) > 0:
+            line = file.readline()
+            if line[0] == "*":
+                break
+            todel = list(line);del(todel[0]);del(todel[-1])
+            line = "".join(todel)
+            if len(line.split()) > 0:
+                mat.append([int(i.strip()) for i in line.split()])
+        return mat
 
 class GlobalAligner:
     def __init__(self,blosPam,blos,V,W,seq1,seq2):
@@ -69,11 +93,11 @@ class GlobalAligner:
 
 def scoreMatrice(blosPam,seq1,seq2,e_gap,i_gap): #I = 1, E = 4
 
-    V = Matrice()
+    V = Matrice(blosPam)
     V.matrix = [[0 for j in range(len(seq2)+1)] for i in range(len(seq1)+1)]
-    W = Matrice()
+    W = Matrice(blosPam)
     W.matrix = [[0 for j in range(len(seq2)+1)] for i in range(len(seq1)+1)]
-    S = Matrice()
+    S = Matrice(blosPam)
     S.matrix = [[0 for j in range(len(seq2)+1)] for i in range(len(seq1)+1)]
 
     V.matrix[0][1] -= e_gap
@@ -129,53 +153,23 @@ def findBestAligns(aligns,blosPam,e_gap,i_gap):
     return [best_score,best_aligns]
 
 
-def parser(version):
+def seqParse(seqfile):
     """
-    Parser pour les .fasta et les fichiers Blosum et Pam
+    Renvoit l'ensemble de séquences d'un fichier
     """
-    print(type(version))
-    print(version)
+    file = open(seqfile, "r")
+    seqlist = []
+    temp = ""
+    for line in file:
+        if line[0] != ">":
 
-    file = open(version, "r")
-
-    # lecture d'un fichier fasta
-    if str(version).split(".")[-1] == "fasta":
-        seqList = []
-        temp = ""
-        for line in file:
-            if line[0] != ">":
-                temp += line.strip()
-            else:
-                if len(temp) > 0:
-                    seqList.append(temp)
-                    temp = ""
-        seqList.append(Sequence(temp))
-        return seqList
-
-    else:
-        #lecture en fct du type de fichier (blosum ou pam)
-        if str(version)[0] == "b":
-            for i in range(6):
-                line = file.readline()
+            temp += line.strip()
         else:
-            for i in range(9):
-                line = file.readline()
-        mat = []
-        letters =file.readline().split()
-        letters.pop()
-        for i in range(len(letters)):
-        	self.letters[letters[i]] = i
-
-        while len(line.split()) > 0:
-            line = file.readline()
-            if line[0] == "*":
-                break
-            todel = list(line);del(todel[0]);del(todel[-1])
-            line = "".join(todel)
-            if len(line.split()) > 0:
-                mat.append([int(i.strip()) for i in line.split()])
-        return mat
-
+            if len(temp) > 0:
+                seqlist.append(temp)
+                temp = ""
+    seqlist.append(Sequence(temp))
+    return seqlist
 
 def printAligns(score,aligns,scoreMat,length=70):
     print("Score:",score)
@@ -209,14 +203,15 @@ def printAligns(score,aligns,scoreMat,length=70):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         filename = sys.argv[1]
+        blosPam = sys.argv[2]
     else:
         sys.exit("Usage: " + sys.argv[0] + " [filename]")
 
-    seqs=parser(filename)
+    seqs=seqParse(filename)
     print("TEST")
-    scoreMat = Matrice()
+    scoreMat = Matrice(blosPam)
     #scoreMat.initBlosPam(seqs)
     v,w,res = scoreMatrice(scoreMat,seqs[0],seqs[1],4,1)
 
